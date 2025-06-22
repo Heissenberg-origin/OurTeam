@@ -48,4 +48,8 @@ public class ArrangeInfo {
     public void setArrange_doc_id(String arrange_doc_id) {
         this.arrange_doc_id = arrange_doc_id;
     }
+
+    //add a new test
+
+
 }
