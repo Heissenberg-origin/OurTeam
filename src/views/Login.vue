@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div class="login-container">
     <el-card class="login-box">
       <h2 class="login-title">门诊挂号收费系统</h2>
@@ -99,4 +99,54 @@ const handleLogin = () => {
   align-items: center;
   margin-right: 10px;
 }
-</style>
+</style> -->
+<script>
+import { registerPatient } from '@/api/patient'
+
+export default {
+  data() {
+    return {
+      formData: {
+        name: '',
+        age: '',
+        gender: '',
+        // 其他注册需要的字段
+      },
+      registerResult: null
+    }
+  },
+  methods: {
+    async submitRegistration() {
+      try {
+        const response = await registerPatient(this.formData)
+        this.registerResult = '注册成功: ' + JSON.stringify(response.data)
+        
+        // 注册成功后的操作，如跳转页面
+        // this.$router.push('/success')
+      } catch (error) {
+        this.registerResult = '注册失败: ' + error.message
+        console.error('注册错误:', error.response?.data || error.message)
+      }
+    }
+  }
+}
+</script>
+
+<template>
+  <div>
+    <form @submit.prevent="submitRegistration">
+      <input v-model="formData.name" placeholder="姓名">
+      <input v-model="formData.age" placeholder="年龄" type="number">
+      <select v-model="formData.gender">
+        <option value="male">男</option>
+        <option value="female">女</option>
+      </select>
+      <!-- 其他表单字段 -->
+      <button type="submit">注册</button>
+    </form>
+    
+    <div v-if="registerResult">
+      {{ registerResult }}
+    </div>
+  </div>
+</template>

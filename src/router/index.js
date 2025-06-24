@@ -95,6 +95,18 @@ const router = createRouter({
           name: 'PatientList',
           component: () => import('@/views/patient/PatientList.vue')
         },
+        {
+        path: '/patient/detail/:id',
+        name: 'PatientDetail',
+        component: () => import('@/views/patient/PatientDetail.vue'),
+        meta: { title: '患者详情' }
+        },
+        {
+        path: '/patient/edit/:id',
+        name: 'PatientEdit',
+        component: () => import('@/views/patient/PatientEdit.vue'),
+        meta: { title: '编辑患者' }
+        },
         //report
         {
           path: '/prescription-summary',
