@@ -175,6 +175,15 @@ const router = createRouter({
       
           component: () => import('@/views/system/LogManagement.vue')
         },
+        //settings
+        {
+          path:'/settings/profile',
+          component: () => import('@/views/settings/Profile.vue'),
+        },
+        {
+          path:'/settings/change-password',
+          component: () => import('@/views/settings/ChangePassword.vue'),
+        }
       ]},
     
     // 默认重定向
