@@ -1,19 +1,28 @@
 <template>
-  <div class="patient-register-container">
-    <el-card shadow="hover" class="register-card">
+  <div class="patient-edit-container">
+    <el-card>
       <template #header>
         <div class="card-header">
-          <span>患者登记</span>
+          <span>编辑患者信息</span>
+          <div>
+            <el-button @click="goBack">取消</el-button>
+            <el-button type="primary" @click="submitForm" :loading="submitting">保存</el-button>
+          </div>
         </div>
       </template>
 
-      <el-form ref="registerForm" :model="form" :rules="rules" label-width="120px">
+      <el-form :model="form" :rules="rules" label-width="120px" ref="formRef">
         <!-- 基本信息 -->
         <el-divider content-position="left">基本信息</el-divider>
         <el-row :gutter="20">
           <el-col :span="8">
-            <el-form-item label="姓名" prop="name">
-              <el-input v-model="form.name" placeholder="请输入患者姓名" clearable />
+            <el-form-item label="就诊卡号">
+              <el-input v-model="form.healthcard_id" disabled />
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="患者姓名" prop="name">
+              <el-input v-model="form.name" />
             </el-form-item>
           </el-col>
           <el-col :span="8">
@@ -24,24 +33,25 @@
               </el-radio-group>
             </el-form-item>
           </el-col>
-          <el-col :span="8">
-            <el-form-item label="证件类型" prop="identification_type">
-              <el-select v-model="form.identification_type" placeholder="请选择证件类型" style="width:100%">
-                <el-option 
-                  v-for="item in idTypeOptions" 
-                  :key="item" 
-                  :label="item" 
-                  :value="item"
-                />
-              </el-select>
-            </el-form-item>
-          </el-col>
         </el-row>
 
         <el-row :gutter="20">
           <el-col :span="8">
+            <el-form-item label="证件类型" prop="identification_type">
+              <el-select v-model="form.identification_type" style="width:100%">
+                <el-option label="居民身份证" value="居民身份证" />
+                <el-option label="港澳通行证" value="港澳通行证" />
+                <el-option label="台湾通行证" value="台湾通行证" />
+                <el-option label="护照" value="护照" />
+                <el-option label="军官证" value="军官证" />
+                <el-option label="驾驶证" value="驾驶证" />
+                <el-option label="其他" value="其他" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
             <el-form-item label="证件号码" prop="identification_id">
-              <el-input v-model="form.identification_id" placeholder="请输入证件号码" clearable />
+              <el-input v-model="form.identification_id" />
             </el-form-item>
           </el-col>
           <el-col :span="8">
@@ -55,59 +65,50 @@
               />
             </el-form-item>
           </el-col>
+        </el-row>
+
+        <el-row :gutter="20">
           <el-col :span="8">
             <el-form-item label="年龄" prop="age">
               <el-input-number v-model="form.age" :min="0" :max="120" controls-position="right" style="width:100%" />
             </el-form-item>
           </el-col>
-        </el-row>
-
-        <el-row :gutter="20">
           <el-col :span="8">
             <el-form-item label="国籍">
-              <el-input v-model="form.nationality" placeholder="请输入国籍" clearable />
+              <el-input v-model="form.nationality" />
             </el-form-item>
           </el-col>
           <el-col :span="8">
             <el-form-item label="民族">
-              <el-input v-model="form.ethnicity" placeholder="请输入民族" clearable />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="婚姻状况">
-              <el-select v-model="form.marital_status" placeholder="请选择婚姻状况" style="width:100%">
-                <el-option 
-                  v-for="item in maritalStatusOptions" 
-                  :key="item" 
-                  :label="item" 
-                  :value="item"
-                />
-              </el-select>
+              <el-input v-model="form.ethnicity" />
             </el-form-item>
           </el-col>
         </el-row>
 
         <el-row :gutter="20">
           <el-col :span="8">
+            <el-form-item label="婚姻状况">
+              <el-select v-model="form.marital_status" style="width:100%">
+                <el-option label="未婚" value="未婚" />
+                <el-option label="已婚" value="已婚" />
+                <el-option label="离异" value="离异" />
+                <el-option label="丧偶" value="丧偶" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
             <el-form-item label="职业">
-              <el-select v-model="form.occupation" placeholder="请选择职业" style="width:100%">
-                <el-option 
-                  v-for="item in occupationOptions" 
-                  :key="item" 
-                  :label="item" 
-                  :value="item"
-                />
+              <el-select v-model="form.occupation" style="width:100%">
+                <el-option label="职工" value="职工" />
+                <el-option label="学生" value="学生" />
+                <el-option label="工人" value="工人" />
+                <el-option label="干部" value="干部" />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="8">
             <el-form-item label="联系电话" prop="phonenumber">
-              <el-input v-model="form.phonenumber" placeholder="请输入联系电话" clearable />
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="电子邮箱">
-              <el-input v-model="form.email" placeholder="请输入电子邮箱" clearable />
+              <el-input v-model="form.phonenumber" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -116,13 +117,13 @@
         <el-divider content-position="left">地址信息</el-divider>
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="现住地址" prop="address">
-              <el-input v-model="form.address" placeholder="请输入现住地址" clearable />
+            <el-form-item label="现住地址">
+              <el-input v-model="form.address" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="邮编">
-              <el-input v-model="form.now_postcode" placeholder="请输入邮编" clearable />
+              <el-input v-model="form.now_postcode" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -130,12 +131,12 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="户口地址">
-              <el-input v-model="form.registered_address" placeholder="请输入户口地址" clearable />
+              <el-input v-model="form.registered_address" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="邮编">
-              <el-input v-model="form.registered_postcode" placeholder="请输入邮编" clearable />
+              <el-input v-model="form.registered_postcode" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -146,7 +147,7 @@
           <el-row :gutter="20">
             <el-col :span="6">
               <el-form-item :label="`监护人关系${index+1}`">
-                <el-select v-model="guardian.relationship" placeholder="请选择关系" style="width:100%">
+                <el-select v-model="guardian.relationship" style="width:100%">
                   <el-option label="父母" value="父母" />
                   <el-option label="配偶" value="配偶" />
                   <el-option label="子女" value="子女" />
@@ -155,13 +156,13 @@
               </el-form-item>
             </el-col>
             <el-col :span="6">
-              <el-form-item label="监护人姓名">
-                <el-input v-model="guardian.name" placeholder="监护人姓名" clearable />
+              <el-form-item :label="`监护人${index+1}姓名`">
+                <el-input v-model="guardian.name" />
               </el-form-item>
             </el-col>
             <el-col :span="6">
-              <el-form-item label="监护人电话">
-                <el-input v-model="guardian.phonenum" placeholder="监护人电话" clearable />
+              <el-form-item :label="`监护人${index+1}电话`">
+                <el-input v-model="guardian.phonenum" />
               </el-form-item>
             </el-col>
             <el-col :span="6">
@@ -189,20 +190,17 @@
         <el-divider content-position="left">关联信息</el-divider>
         <el-row :gutter="20">
           <el-col :span="8">
-            <el-form-item label="患者性质" prop="type">
-              <el-select v-model="form.type" placeholder="请选择患者性质" style="width:100%">
-                <el-option 
-                  v-for="item in patientTypeOptions" 
-                  :key="item" 
-                  :label="item" 
-                  :value="item"
-                />
+            <el-form-item label="患者性质">
+              <el-select v-model="form.type" style="width:100%">
+                <el-option label="自费" value="自费" />
+                <el-option label="城镇医保" value="城镇医保" />
+                <el-option label="农村医保" value="农村医保" />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="8">
             <el-form-item label="医保卡号">
-              <el-input v-model="form.micard_id" placeholder="请输入医保卡号" clearable />
+              <el-input v-model="form.micard_id" />
             </el-form-item>
           </el-col>
           <el-col :span="8">
@@ -217,61 +215,24 @@
             </el-form-item>
           </el-col>
         </el-row>
-
-        <!-- 操作按钮 -->
-        <el-row :gutter="20" class="action-buttons">
-          <el-col :span="24">
-            <el-button type="primary" @click="submitForm">保存</el-button>
-            <el-button @click="resetForm">重置</el-button>
-            <router-link :to="{ name: 'PatientList' }">
-              <el-button>患者列表</el-button>
-            </router-link>
-          </el-col>
-        </el-row>
       </el-form>
     </el-card>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
-import { ElMessage } from 'element-plus'
-import { registerPatient } from '@/api/patient'
+import { ref, reactive, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { queryPatients, updatePatient } from '@/api/patient'
 
-// 严格匹配您提供的枚举类型
-const idTypeOptions = [
-  '居民身份证',
-  '港澳通行证',
-  '台湾通行证',
-  '护照',
-  '军官证',
-  '驾驶证',
-  '其他'
-]
+const route = useRoute()
+const router = useRouter()
+const formRef = ref(null)
 
-const maritalStatusOptions = [
-  '未婚',
-  '已婚',
-  '离异',
-  '丧偶'
-]
-
-const patientTypeOptions = [
-  '自费',
-  '城镇医保',
-  '农村医保'
-]
-
-const occupationOptions = [
-  '职工',
-  '学生',
-  '工人',
-  '干部'
-]
-
-const registerForm = ref(null)
-
+const submitting = ref(false)
 const form = reactive({
+  healthcard_id: '',
   name: '',
   gender: '男',
   identification_type: '居民身份证',
@@ -301,10 +262,53 @@ const rules = {
   gender: [{ required: true, message: '请选择性别', trigger: 'change' }],
   identification_type: [{ required: true, message: '请选择证件类型', trigger: 'change' }],
   identification_id: [{ required: true, message: '请输入证件号码', trigger: 'blur' }],
-  age: [{ required: true, message: '请输入年龄', trigger: 'blur' }],
-  phonenumber: [{ required: true, message: '请输入联系电话', trigger: 'blur' }],
-  address: [{ required: true, message: '请输入现住地址', trigger: 'blur' }],
-  type: [{ required: true, message: '请选择患者性质', trigger: 'change' }]
+  phonenumber: [{ required: true, message: '请输入联系电话', trigger: 'blur' }]
+}
+
+// 获取患者详情
+const fetchPatientDetail = async () => {
+  try {
+    const healthcardId = route.params.id
+    
+    if (!healthcardId) {
+      ElMessage.error('无效的患者ID')
+      router.push('/patient-list')
+      return
+    }
+    
+    const { data } = await queryPatients({ healthcardId: parseInt(healthcardId) })
+    
+    if (data && data.length > 0) {
+      const patient = data[0]
+      Object.assign(form, {
+        ...patient,
+        guardians: [
+          {
+            relationship: patient.guardian1_relationship || '',
+            name: patient.guardian1_name || '',
+            phonenum: patient.guardian1_phonenum || ''
+          },
+          {
+            relationship: patient.guardian2_relationship || '',
+            name: patient.guardian2_name || '',
+            phonenum: patient.guardian2_phonenum || ''
+          },
+          {
+            relationship: patient.guardian3_relationship || '',
+            name: patient.guardian3_name || '',
+            phonenum: patient.guardian3_phonenum || ''
+          }
+        ].filter(g => g.name || g.relationship || g.phonenum)
+      })
+    } else {
+      ElMessage.error('未找到患者信息')
+      router.push('/patient-list')
+    }
+  } catch (error) {
+    console.error('获取患者详情失败:', error)
+    ElMessage.error('获取患者详情失败: ' + (error.response?.data?.message || error.message))
+    router.push('/patient-list')
+  }
 }
 
 const addGuardian = () => {
@@ -321,14 +325,13 @@ const removeGuardian = (index) => {
 
 const submitForm = async () => {
   try {
-    await registerForm.value.validate()
+    await formRef.value.validate()
+    
+    submitting.value = true
     
     // 准备提交数据
     const requestData = {
       ...form,
-      // 转换日期格式
-      birthdate: form.birthdate ? `${form.birthdate}T00:00:00.000Z` : null,
-      // 处理监护人信息
       guardian1_name: form.guardians[0]?.name || '',
       guardian1_relationship: form.guardians[0]?.relationship || '',
       guardian1_phonenum: form.guardians[0]?.phonenum || '',
@@ -343,52 +346,49 @@ const submitForm = async () => {
     // 移除前端使用的临时字段
     delete requestData.guardians
     
-    // 提交数据
-    const { data } = await registerPatient(requestData)
+    // 调用更新API
+    const { data } = await updatePatient(form.healthcard_id, requestData)
     
     if (data) {
-      ElMessage.success('患者登记成功')
-      resetForm()
+      ElMessage.success('患者信息更新成功')
+      router.push('/patient-list')
     } else {
-      ElMessage.error('患者登记失败')
+      ElMessage.error('更新失败')
     }
   } catch (error) {
     console.error('提交失败:', error)
-    ElMessage.error(error.response?.data?.message || '提交失败，请检查表单')
+    if (error !== 'cancel') {
+      ElMessage.error('操作失败: ' + (error.response?.data?.message || error.message))
+    }
+  } finally {
+    submitting.value = false
   }
 }
 
-const resetForm = () => {
-  registerForm.value.resetFields()
-  form.guardians = [{ relationship: '', name: '', phonenum: '' }]
-  form.healthcard_balance = 0
-  // 重置枚举类型字段的默认值
-  form.identification_type = '居民身份证'
-  form.marital_status = '未婚'
-  form.type = '自费'
-  form.occupation = '职工'
+const goBack = () => {
+  router.push('/patient-list')
 }
+
+onMounted(() => {
+  fetchPatientDetail()
+})
 </script>
 
 <style scoped>
-.patient-register-container {
+.patient-edit-container {
   padding: 20px;
 }
-.register-card {
-  min-height: calc(100vh - 90px);
-}
+
 .card-header {
-  font-size: 18px;
-  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
+
 .guardian-item {
   margin-bottom: 10px;
   padding: 10px;
   background-color: #f5f7fa;
   border-radius: 4px;
-}
-.action-buttons {
-  margin-top: 20px;
-  text-align: center;
 }
 </style>

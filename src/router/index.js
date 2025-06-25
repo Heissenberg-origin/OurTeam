@@ -64,6 +64,12 @@ const router = createRouter({
           name: 'RegisterFeeQuery',
           component: () => import('@/views/fee-query/Register.vue')
         },
+        {
+        path: '/prescription-detail',
+        name: 'PrescriptionDetail',
+        component: () => import('@/views/fee-query/PrescriptionDetail.vue'),
+        meta: { title: '处方详情' }
+        },
          {
           path: '/order-fee-query',
           name: 'OrderFeeQuery',
@@ -94,6 +100,18 @@ const router = createRouter({
           path: '/patient-list',
           name: 'PatientList',
           component: () => import('@/views/patient/PatientList.vue')
+        },
+        {
+        path: '/patient/detail/:id',
+        name: 'PatientDetail',
+        component: () => import('@/views/patient/PatientDetail.vue'),
+        meta: { title: '患者详情' }
+        },
+        {
+        path: '/patient/edit/:id',
+        name: 'PatientEdit',
+        component: () => import('@/views/patient/PatientEdit.vue'),
+        meta: { title: '编辑患者' }
         },
         //report
         {
