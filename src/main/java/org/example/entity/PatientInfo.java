@@ -1,6 +1,7 @@
 package org.example.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -28,6 +29,7 @@ public class PatientInfo {
     @Schema(description = "性别", allowableValues = {"男", "女"})
     private Gender gender;
 
+    @TableId
     @Schema(description = "就诊卡号", example = "C123456789")
     private int healthcard_id;
 

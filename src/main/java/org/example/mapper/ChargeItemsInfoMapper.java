@@ -25,13 +25,35 @@ public interface ChargeItemsInfoMapper extends BaseMapper<ChargeItemsInfo> {
     @Options(useGeneratedKeys = true, keyProperty = "chargeItemId")
     void insertInfo(ChargeItemsInfo chargeItemsInfo);
 
-    @Select("SELECT * FROM chargeitems_info")
+    @Select("""
+        SELECT
+            ci.chargeitem_id ,
+            ci.chargeitem_type,
+            ci.chargeitem_name,
+            ci.chargeitem_code,
+            ci.chargeitem_ex_dep_id,
+            ci.chargeitem_method,
+            ci.chargeitem_unit,
+            ci.chargeitem_balance,
+            ci.chargeitem_price,
+            ci.chargeitem_state,
+            ci.chargeitem_creator,
+            ci.chargeitem_time,
+            ci.chargeitem_lattest_fixer,
+            di.department_name as depName
+        FROM
+            chargeitems_info ci
+        JOIN
+            department_info di ON ci.chargeitem_ex_dep_id = di.department_id
+
+          """)
     @Results(id = "chargeItemResultMap", value = {
             @Result(property = "chargeItemId", column = "chargeitem_id"),
             @Result(property = "chargeItemType", column = "chargeitem_type"),
             @Result(property = "chargeItemName", column = "chargeitem_name"),
             @Result(property = "chargeItemCode", column = "chargeitem_code"),
-            @Result(property = "chargeItemExDepId", column = "chargeitem_ex_dep_id"),
+            @Result(property = "chargeItemExDepId", column = "chargeitem_ex_dep_id"),//多表查询出departmen_name
+            @Result(property = "depname",column = "depName"),
             @Result(property = "chargeItemMethod", column = "chargeitem_method"),
             @Result(property = "chargeItemUnit", column = "chargeitem_unit"),
             @Result(property = "chargeItemBalance", column = "chargeitem_balance"),
@@ -43,7 +65,29 @@ public interface ChargeItemsInfoMapper extends BaseMapper<ChargeItemsInfo> {
     })
     List<ChargeItemsInfo> selectAll();
 
-    @Select("SELECT * FROM chargeitems_info WHERE chargeitem_id = #{id}")
+    @Select("""
+        SELECT
+            ci.chargeitem_id ,
+            ci.chargeitem_type,
+            ci.chargeitem_name,
+            ci.chargeitem_code,
+            ci.chargeitem_ex_dep_id,
+            ci.chargeitem_method,
+            ci.chargeitem_unit,
+            ci.chargeitem_balance,
+            ci.chargeitem_price,
+            ci.chargeitem_state,
+            ci.chargeitem_creator,
+            ci.chargeitem_time,
+            ci.chargeitem_lattest_fixer,
+            di.department_name as depName
+        FROM
+            chargeitems_info ci
+        JOIN
+            department_info di ON ci.chargeitem_ex_dep_id = di.department_id
+        WHERE
+            ci.chargeitem_id = #{id}
+          """)
     @ResultMap("chargeItemResultMap")
     ChargeItemsInfo selectById(int id);
 
@@ -67,30 +111,158 @@ public interface ChargeItemsInfoMapper extends BaseMapper<ChargeItemsInfo> {
 
     // ==================== 业务查询操作 ====================
 
-    @Select("SELECT * FROM chargeitems_info WHERE chargeitem_type = #{type.displayValue}")
+    @Select("""
+        SELECT
+            ci.chargeitem_id ,
+            ci.chargeitem_type,
+            ci.chargeitem_name,
+            ci.chargeitem_code,
+            ci.chargeitem_ex_dep_id,
+            ci.chargeitem_method,
+            ci.chargeitem_unit,
+            ci.chargeitem_balance,
+            ci.chargeitem_price,
+            ci.chargeitem_state,
+            ci.chargeitem_creator,
+            ci.chargeitem_time,
+            ci.chargeitem_lattest_fixer,
+            di.department_name as depName
+        FROM
+            chargeitems_info ci
+        JOIN
+            department_info di ON ci.chargeitem_ex_dep_id = di.department_id
+        WHERE ci.chargeitem_type = #{type.displayValue}
+        """)
     @ResultMap("chargeItemResultMap")
     List<ChargeItemsInfo> selectByType(ChargeItemsInfo.ChargeItemType type);
 
-    @Select("SELECT * FROM chargeitems_info WHERE chargeitem_ex_dep_id = #{departmentId}")
+    @Select("""
+        SELECT
+            ci.chargeitem_id ,
+            ci.chargeitem_type,
+            ci.chargeitem_name,
+            ci.chargeitem_code,
+            ci.chargeitem_ex_dep_id,
+            ci.chargeitem_method,
+            ci.chargeitem_unit,
+            ci.chargeitem_balance,
+            ci.chargeitem_price,
+            ci.chargeitem_state,
+            ci.chargeitem_creator,
+            ci.chargeitem_time,
+            ci.chargeitem_lattest_fixer,
+            di.department_name as depName
+        FROM
+            chargeitems_info ci
+        JOIN
+            department_info di ON ci.chargeitem_ex_dep_id = di.department_id
+        WHERE
+            ci.chargeitem_ex_dep_id = #{departmentId}
+        """)
     @ResultMap("chargeItemResultMap")
     List<ChargeItemsInfo> selectByDepartment(int departmentId);
 
-    @Select("SELECT * FROM chargeitems_info WHERE chargeitem_state = #{status.displayValue}")
+    @Select("""
+        SELECT
+            ci.chargeitem_id ,
+            ci.chargeitem_type,
+            ci.chargeitem_name,
+            ci.chargeitem_code,
+            ci.chargeitem_ex_dep_id,
+            ci.chargeitem_method,
+            ci.chargeitem_unit,
+            ci.chargeitem_balance,
+            ci.chargeitem_price,
+            ci.chargeitem_state,
+            ci.chargeitem_creator,
+            ci.chargeitem_time,
+            ci.chargeitem_lattest_fixer,
+            di.department_name as depName
+        FROM
+            chargeitems_info ci
+        JOIN
+            department_info di ON ci.chargeitem_ex_dep_id = di.department_id
+        WHERE
+            ci.chargeitem_state = #{status.displayValue}
+        """)
     @ResultMap("chargeItemResultMap")
     List<ChargeItemsInfo> selectByStatus(ChargeItemsInfo.ItemState status);
 
-    @Select("SELECT * FROM chargeitems_info WHERE " +
-            "chargeitem_name LIKE CONCAT('%', #{keyword}, '%') OR " +
-            "chargeitem_code LIKE CONCAT('%', #{keyword}, '%')")
+    @Select("""
+        SELECT
+            ci.chargeitem_id ,
+            ci.chargeitem_type,
+            ci.chargeitem_name,
+            ci.chargeitem_code,
+            ci.chargeitem_ex_dep_id,
+            ci.chargeitem_method,
+            ci.chargeitem_unit,
+            ci.chargeitem_balance,
+            ci.chargeitem_price,
+            ci.chargeitem_state,
+            ci.chargeitem_creator,
+            ci.chargeitem_time,
+            ci.chargeitem_lattest_fixer,
+            di.department_name as depName
+        FROM
+            chargeitems_info ci
+        JOIN
+            department_info di ON ci.chargeitem_ex_dep_id = di.department_id
+        WHERE
+            ci.chargeitem_name LIKE CONCAT('%', #{keyword}, '%') OR chargeitem_code LIKE CONCAT('%', #{keyword}, '%')
+        """)
     @ResultMap("chargeItemResultMap")
     List<ChargeItemsInfo> searchByKeyword(String keyword);
 
-    @Select("SELECT * FROM chargeitems_info WHERE chargeitem_balance < #{threshold}")
+    @Select("""
+        SELECT
+            ci.chargeitem_id ,
+            ci.chargeitem_type,
+            ci.chargeitem_name,
+            ci.chargeitem_code,
+            ci.chargeitem_ex_dep_id,
+            ci.chargeitem_method,
+            ci.chargeitem_unit,
+            ci.chargeitem_balance,
+            ci.chargeitem_price,
+            ci.chargeitem_state,
+            ci.chargeitem_creator,
+            ci.chargeitem_time,
+            ci.chargeitem_lattest_fixer,
+            di.department_name as depName
+        FROM
+            chargeitems_info ci
+        JOIN
+            department_info di ON ci.chargeitem_ex_dep_id = di.department_id
+        WHERE
+            ci.chargeitem_balance < #{threshold}
+        """)
     @ResultMap("chargeItemResultMap")
     List<ChargeItemsInfo> selectWithLowBalance(int threshold);
 
-    @Select("SELECT * FROM chargeitems_info WHERE " +
-            "chargeitem_price BETWEEN #{minPrice} AND #{maxPrice}")
+    @Select("""
+        SELECT
+            ci.chargeitem_id ,
+            ci.chargeitem_type,
+            ci.chargeitem_name,
+            ci.chargeitem_code,
+            ci.chargeitem_ex_dep_id,
+            ci.chargeitem_method,
+            ci.chargeitem_unit,
+            ci.chargeitem_balance,
+            ci.chargeitem_price,
+            ci.chargeitem_state,
+            ci.chargeitem_creator,
+            ci.chargeitem_time,
+            ci.chargeitem_lattest_fixer,
+            di.department_name as depName
+        FROM
+            chargeitems_info ci
+        JOIN
+            department_info di ON ci.chargeitem_ex_dep_id = di.department_id
+        WHERE
+            ci.chargeitem_price BETWEEN #{minPrice} AND #{maxPrice}
+        """)
     @ResultMap("chargeItemResultMap")
     List<ChargeItemsInfo> selectByPriceRange(@Param("minPrice") double minPrice,
                                              @Param("maxPrice") double maxPrice);
@@ -118,16 +290,81 @@ public interface ChargeItemsInfoMapper extends BaseMapper<ChargeItemsInfo> {
     @Select("SELECT DISTINCT chargeitem_type FROM chargeitems_info")
     List<String> selectAllTypes();
 
-    @Select("SELECT * FROM chargeitems_info WHERE chargeitem_creator = #{creator}")
+    @Select("""
+        SELECT
+            ci.chargeitem_id ,
+            ci.chargeitem_type,
+            ci.chargeitem_name,
+            ci.chargeitem_code,
+            ci.chargeitem_ex_dep_id,
+            ci.chargeitem_method,
+            ci.chargeitem_unit,
+            ci.chargeitem_balance,
+            ci.chargeitem_price,
+            ci.chargeitem_state,
+            ci.chargeitem_creator,
+            ci.chargeitem_time,
+            ci.chargeitem_lattest_fixer,
+            di.department_name as depName
+        FROM
+            chargeitems_info ci
+        JOIN
+            department_info di ON ci.chargeitem_ex_dep_id = di.department_id
+        WHERE
+            chargeitem_creator = #{creator}
+        """)
     @ResultMap("chargeItemResultMap")
     List<ChargeItemsInfo> selectByCreator(String creator);
 
-    @Select("SELECT * FROM chargeitems_info WHERE chargeitem_lattest_fixer = #{modifier}")
+    @Select("""
+        SELECT
+            ci.chargeitem_id ,
+            ci.chargeitem_type,
+            ci.chargeitem_name,
+            ci.chargeitem_code,
+            ci.chargeitem_ex_dep_id,
+            ci.chargeitem_method,
+            ci.chargeitem_unit,
+            ci.chargeitem_balance,
+            ci.chargeitem_price,
+            ci.chargeitem_state,
+            ci.chargeitem_creator,
+            ci.chargeitem_time,
+            ci.chargeitem_lattest_fixer,
+            di.department_name as depName
+        FROM
+            chargeitems_info ci
+        JOIN
+            department_info di ON ci.chargeitem_ex_dep_id = di.department_id
+        WHERE
+            chargeitem_lattest_fixer = #{modifier}
+        """)
     @ResultMap("chargeItemResultMap")
     List<ChargeItemsInfo> selectByModifier(String modifier);
 
-    @Select("SELECT * FROM chargeitems_info WHERE " +
-            "chargeitem_time BETWEEN #{startDate} AND #{endDate}")
+    @Select("""
+        SELECT
+            ci.chargeitem_id ,
+            ci.chargeitem_type,
+            ci.chargeitem_name,
+            ci.chargeitem_code,
+            ci.chargeitem_ex_dep_id,
+            ci.chargeitem_method,
+            ci.chargeitem_unit,
+            ci.chargeitem_balance,
+            ci.chargeitem_price,
+            ci.chargeitem_state,
+            ci.chargeitem_creator,
+            ci.chargeitem_time,
+            ci.chargeitem_lattest_fixer,
+            di.department_name as depName
+        FROM
+            chargeitems_info ci
+        JOIN
+            department_info di ON ci.chargeitem_ex_dep_id = di.department_id
+        WHERE
+            chargeitem_time BETWEEN #{startDate} AND #{endDate}
+        """)
     @ResultMap("chargeItemResultMap")
     List<ChargeItemsInfo> selectCreatedBetween(@Param("startDate") Timestamp startDate,
                                                @Param("endDate") Timestamp endDate);

@@ -131,6 +131,9 @@ public class ChargeItemsInfo {
     @TableField("chargeitem_ex_dep_id")
     private int chargeItemExDepId;
 
+    @TableField(exist = false)
+    private String depname;
+
     @Schema(description = "使用方法", example = "静脉采血")
     @TableField("chargeitem_method")
     private String chargeItemMethod;

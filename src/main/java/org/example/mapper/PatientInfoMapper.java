@@ -12,5 +12,5 @@ import org.example.entity.PatientInfo;
  * @since 2024-08-14
  */
 public interface PatientInfoMapper extends BaseMapper<PatientInfo> {
-   // void save(User user);
+    // void save(User user);
 }
