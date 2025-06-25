@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.example.entity.PatientInfo;
 import org.example.mapper.PatientInfoMapper;
 import org.example.service.PatientService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,8 @@ import java.util.List;
 public class PatientServiceImpl extends ServiceImpl<PatientInfoMapper, PatientInfo> implements PatientService {
 
 
+    @Autowired
+    private PatientInfoMapper patientInfoMapper;
     @Override
     public List<PatientInfo> queryPatients(Integer healthcardId, String identificationId, String name) {
         QueryWrapper<PatientInfo> queryWrapper = new QueryWrapper<>();

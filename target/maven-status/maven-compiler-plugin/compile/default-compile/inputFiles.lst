@@ -5,6 +5,7 @@ D:\hosipital\src\main\java\org\example\entity\DepartmentInfo.java
 D:\hosipital\src\main\java\org\example\entity\LoginInfo.java
 D:\hosipital\src\main\java\org\example\service\ArrangeService.java
 D:\hosipital\src\main\java\org\example\mapper\ChargeItemsInfoMapper.java
+D:\hosipital\src\main\java\org\example\service\impl\LoginServiceImpl.java
 D:\hosipital\src\main\java\org\example\entity\ArrangeInfo.java
 D:\hosipital\src\main\java\org\example\service\LoginService.java
 D:\hosipital\src\main\java\org\example\service\LogService.java
@@ -13,7 +14,6 @@ D:\hosipital\src\main\java\org\example\controller\RegistrationController.java
 D:\hosipital\src\main\java\org\example\service\impl\RegistrationServiceImpl.java
 D:\hosipital\src\main\java\org\example\DemoApplication.java
 D:\hosipital\src\main\java\org\example\exception\CustomException.java
-D:\hosipital\src\main\java\org\example\service\impl\LoginServiceInfo.java
 D:\hosipital\src\main\java\org\example\mapper\PrescriptionInfoMapper.java
 D:\hosipital\src\main\java\org\example\mapper\ArrangeInfoMapper.java
 D:\hosipital\src\main\java\org\example\controller\PrescriptionController.java

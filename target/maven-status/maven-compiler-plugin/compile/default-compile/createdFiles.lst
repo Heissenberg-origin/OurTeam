@@ -11,7 +11,6 @@ org\example\service\LoginService.class
 org\example\controller\ChargeItemController.class
 org\example\service\impl\ChargeItemServiceImpl.class
 org\example\controller\LogController.class
-org\example\service\impl\LoginServiceInfo.class
 org\example\entity\LogInfo.class
 org\example\entity\ChargeItemsInfo.class
 org\example\controller\PatientController.class
@@ -20,6 +19,7 @@ org\example\entity\PrescriptionInfo.class
 org\example\entity\RegistrationInfo$PaymentType.class
 org\example\mapper\DepartmentInfoMapper.class
 org\example\entity\DoctorInfo.class
+org\example\service\impl\LoginServiceImpl.class
 org\example\exception\CustomException.class
 org\example\mapper\RegistrationInfoMapper.class
 org\example\service\impl\RegistrationServiceImpl.class

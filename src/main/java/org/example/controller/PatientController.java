@@ -2,6 +2,7 @@ package org.example.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.example.entity.PatientInfo;
 import org.example.service.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import java.util.Map;
 
 
 @RestController
+@Tag(name = "病人信息管理", description = "收费项目患者信息的创建、查询、更新和删除等操作")
 @RequestMapping("/patient")
 public class PatientController {
 
@@ -26,12 +28,12 @@ public class PatientController {
      * @return 保存成功返回true，失败返回false
      */
     @PostMapping("/register")
-    public boolean registerPatient(@RequestBody PatientInfo patientInfo) {
-        return patientService.save(patientInfo);
+    public void registerPatient(@RequestBody PatientInfo patientInfo) {
+        patientService.save(patientInfo);
     }
     @DeleteMapping("/delete/{healthcardId}")
-    public boolean deletePatient(@PathVariable int healthcardId) {
-        return patientService.removeById(healthcardId);
+    public void deletePatient(@PathVariable int healthcardId) {
+        patientService.removeById(healthcardId);
     }
 
     @GetMapping("/query")

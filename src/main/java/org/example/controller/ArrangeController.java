@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.List;
 
 @Slf4j
+@Tag(name = "排班管理", description = "排班的创建、查询、更新和删除等操作")
 @RestController
 @RequestMapping("/arrange")
 public class ArrangeController {

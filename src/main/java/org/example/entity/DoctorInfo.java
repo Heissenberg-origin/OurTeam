@@ -16,7 +16,7 @@ public class DoctorInfo {
 
     @TableId("doc_id")
     @Schema(description = "医生ID", example = "1001")
-    private Integer docId; // 改为Integer包装类型，符合Java规范
+    private int docId; // 改为Integer包装类型，符合Java规范
 
     @TableField("doc_name")
     @Schema(description = "医生姓名", example = "张医生")
@@ -33,18 +33,15 @@ public class DoctorInfo {
 
     @TableField("doc_dp_id")
     @Schema(description = "所属部门ID", example = "201")
-    private Integer docDpId;
+    private int docDpId;
+
+    @TableField(exist = false)
+    @Schema(description = "所属部门名")
+    private String docDpName;
 
     @TableField("doc_fee")
     @Schema(description = "挂号费(分)", example = "5000")
-    private Integer docFee;
+    private int docFee;
 
     // 兼容方法
-    public void setDocId(String docId) {
-        try {
-            this.docId = Integer.parseInt(docId);
-        } catch (NumberFormatException e) {
-            this.docId = null;
-        }
-    }
 }

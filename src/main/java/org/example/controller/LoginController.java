@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.example.entity.LoginInfo;
 import org.example.service.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@Tag(name = "登录管理", description = "登陆账号的创建、查询、更新和删除等操作")
 @RequestMapping("/api/auth")
 public class LoginController {
 

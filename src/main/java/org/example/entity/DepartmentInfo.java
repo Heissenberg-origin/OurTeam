@@ -12,7 +12,7 @@ import lombok.Data;
 public class DepartmentInfo {
     @TableId("department_id")
     @Schema(description = "部门ID", example = "101")
-    private Integer departmentId; // 改为Integer包装类型
+    private int departmentId; // 改为Integer包装类型
 
     @TableField("department_name")
     @Schema(description = "部门名称", example = "心血管内科")
@@ -24,13 +24,4 @@ public class DepartmentInfo {
     @TableField("dp_phone")
     @Schema(description = "部门电话", example = "02812345678")
     private String dpPhone; // 驼峰命名
-
-    // 兼容方法
-    public void setDepartmentId(String departmentId) {
-        try {
-            this.departmentId = Integer.parseInt(departmentId);
-        } catch (NumberFormatException e) {
-            this.departmentId = null;
-        }
-    }
 }
