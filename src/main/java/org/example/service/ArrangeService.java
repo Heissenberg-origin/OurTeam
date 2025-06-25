@@ -9,8 +9,9 @@ import java.util.Date;
 import java.util.List;
 
 public interface ArrangeService extends IService<ArrangeInfo> {
+    public List<ArrangeInfo> listall();
     public ArrangeInfo getArrangeById(int id);
-    public void setArrangeByid(int id);
+    public void setArrangeByid(ArrangeInfo arrange,int id);
     public void deleteById(int id);
     public List<ArrangeInfo> getArrangeInfosByDocId(int docid);
     public List<ArrangeInfo> getArrangeInfosByDate(Date date1);

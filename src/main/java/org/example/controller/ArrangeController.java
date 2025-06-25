@@ -51,8 +51,8 @@ public class ArrangeController {
             @Parameter(description = "排班ID", required = true)
             @PathVariable int id,
             @RequestBody ArrangeInfo arrangeInfo) {
-             arrangeService.setArrangeByid(id);
-            System.out.println("已完成对ID为"+arrangeInfo.getArrangeid()+"的更新");
+             arrangeService.setArrangeByid(arrangeInfo,id);
+            System.out.println("已完成对ID为"+id+"的更新");
     }
 
     @DeleteMapping("/deleteByID/{id}")
@@ -66,7 +66,7 @@ public class ArrangeController {
     @GetMapping("/listall")
     @Operation(summary = "获取所有排班信息", description = "获取所有排班信息列表")
     public Result getAllArrangeInfos() {
-        Result result = new Result("200","success",arrangeService.list());
+        Result result = new Result("200","success",arrangeService.listall());
         return result.success(result.getData());
     }
 

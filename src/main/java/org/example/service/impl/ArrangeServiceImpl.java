@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,8 +20,12 @@ public class ArrangeServiceImpl extends ServiceImpl<ArrangeInfoMapper, ArrangeIn
     public ArrangeInfo getArrangeById(int id){
         return arrangeInfoMapper.selectArrangeById(id);
     }
-    public void setArrangeByid(int id){
-        arrangeInfoMapper.updateArrangeInfo(getArrangeById(id));
+    public void setArrangeByid(ArrangeInfo arrangeInfo,int id ){
+        arrangeInfoMapper.updateArrangeInfo(arrangeInfo,id);
+    }
+    public List<ArrangeInfo> listall(){
+        List<ArrangeInfo>list=arrangeInfoMapper.listallInfo();
+        return list;
     }
     public void deleteById(int id){
         arrangeInfoMapper.deleteArrangeById(id);
@@ -43,8 +48,8 @@ public class ArrangeServiceImpl extends ServiceImpl<ArrangeInfoMapper, ArrangeIn
         return list;
     }
     public List<ArrangeInfo.TimeSlot> getAvailableSlotsAsEnum(int docid, Date date) {
-        List<String> availableSlots = arrangeInfoMapper.getAvailableSlots(docid, date);
-        return availableSlots.stream()
+        List<String> slots = arrangeInfoMapper.getAvailableSlots(docid, date);
+        return slots.stream()
                 .map(ArrangeInfo.TimeSlot::fromDisplayValue)
                 .collect(Collectors.toList());
     }

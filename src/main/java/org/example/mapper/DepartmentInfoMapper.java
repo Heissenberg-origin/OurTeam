@@ -6,4 +6,5 @@ import org.example.entity.DepartmentInfo;
 
 @Mapper
 public interface DepartmentInfoMapper extends BaseMapper<DepartmentInfo> {
+    // 默认继承selectById等方法
 }

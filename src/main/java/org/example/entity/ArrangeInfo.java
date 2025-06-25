@@ -23,13 +23,12 @@ public class ArrangeInfo {
         @Schema(description = "09:00-10:00") SLOT_9_10("9:00-10:00"),
         @Schema(description = "10:00-11:00") SLOT_10_11("10:00-11:00"),
         @Schema(description = "11:00-12:00") SLOT_11_12("11:00-12:00"),
-        @Schema(description = "13:00-14:00") SLOT_13_14("13:00-14:00"),
         @Schema(description = "14:00-15:00") SLOT_14_15("14:00-15:00"),
         @Schema(description = "15:00-16:00") SLOT_15_16("15:00-16:00"),
         @Schema(description = "16:00-17:00") SLOT_16_17("16:00-17:00"),
         @Schema(description = "17:00-18:00") SLOT_17_18("17:00-18:00");
 
-        private final String displayValue;
+        public  String displayValue;
 
         TimeSlot(String displayValue) {
             this.displayValue = displayValue;
@@ -48,7 +47,6 @@ public class ArrangeInfo {
             throw new IllegalArgumentException("No enum constant for value: " + value);
         }
 
-        // 添加这个方法用于MyBatis从数据库值映射到枚举
         public static TimeSlot fromDbValue(String dbValue) {
             if (dbValue == null) {
                 return null;
@@ -56,6 +54,7 @@ public class ArrangeInfo {
             return fromDisplayValue(dbValue);
         }
     }
+
 
     // ==================== 字段声明 ====================
     @Schema(description = "排班ID", example = "1")
@@ -69,7 +68,7 @@ public class ArrangeInfo {
 
     @Schema(description = "排班时间段",
             allowableValues = {"8:00-9:00", "9:00-10:00", "10:00-11:00",
-                    "11:00-12:00", "13:00-14:00", "14:00-15:00",
+                    "11:00-12:00",  "14:00-15:00",
                     "15:00-16:00", "16:00-17:00", "17:00-18:00"})
     @TableField(value = "arrange_timezone", typeHandler = com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler.class)
     private TimeSlot arrangetimezone;
@@ -81,6 +80,12 @@ public class ArrangeInfo {
     @Schema(description = "医生ID", example = "1001")
     @TableField("arrange_doc_id")
     private int arrangedocid;
+
+    @TableField(exist = false)
+    private String docname;
+
+    @TableField(exist = false)
+    private String depname;
 
     // 添加支持String输入的setter方法
     public void setArrangetimezone(String timezone) {
