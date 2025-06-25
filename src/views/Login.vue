@@ -2,12 +2,13 @@
   <div class="login-container">
     <el-card class="login-box">
       <h2 class="login-title">门诊挂号收费系统</h2>
-      <el-form>
-        <el-form-item>
+      <el-form :model="loginForm" :rules="loginRules" ref="loginFormRef">
+        <el-form-item prop="id">
           <el-input
-            v-model="username"
-            placeholder="请输入用户名"
+            v-model.number="loginForm.id"
+            placeholder="请输入用户ID"
             size="large"
+            type="number"
           >
             <template #prefix>
               <el-icon><User /></el-icon>
@@ -15,9 +16,9 @@
           </el-input>
         </el-form-item>
         
-        <el-form-item>
+        <el-form-item prop="password">
           <el-input
-            v-model="password"
+            v-model="loginForm.password"
             type="password"
             placeholder="请输入密码"
             size="large"
@@ -35,6 +36,7 @@
             size="large"
             @click="handleLogin"
             class="login-btn"
+            :loading="loading"
           >
             登录
           </el-button>
@@ -48,15 +50,68 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { User, Lock } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import { login } from '@/api/auth'
 
-const username = ref('')
-const password = ref('')
 const router = useRouter()
+const loading = ref(false)
+const loginFormRef = ref(null)
+
+const loginForm = ref({
+  id: '',
+  password: ''
+})
+
+const loginRules = {
+  id: [
+    { required: true, message: '请输入用户ID', trigger: 'blur' },
+    { type: 'number', message: 'ID必须为数字', trigger: 'blur' }
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { min: 4, message: '密码长度不能小于4个字符', trigger: 'blur' }
+  ]
+}
 
 const handleLogin = () => {
-  // 这里替换为实际登录逻辑
-  console.log('登录信息:', username.value, password.value)
-  router.push('/home')
+  loginFormRef.value.validate(async (valid) => {
+    if (!valid) return
+    
+    loading.value = true
+    
+    try {
+      const { data } = await login({
+        id: loginForm.value.id,
+        password: loginForm.value.password
+      })
+      
+      if (data) {
+        // 存储完整的用户信息
+        const userData = {
+          id: data.id,
+          name: data.name || `用户${data.id}`,
+          rank: data.rank,
+          lastLoginTime: data.lastLoginTime || new Date().toLocaleString(),
+          // 实际项目中应该存储加密后的密码，而不是明文
+          encryptedPassword: data.encryptedPassword 
+        }
+        localStorage.setItem('userInfo', JSON.stringify(userData))
+        router.push('/home')
+        ElMessage.success('登录成功')
+      }
+    } catch (error) {
+      console.error('登录出错:', error)
+      let errorMessage = '登录失败'
+      if (error.response) {
+        errorMessage += `: ${error.response.data?.message || error.response.statusText}`
+      } else {
+        errorMessage += `: ${error.message}`
+      }
+      ElMessage.error(errorMessage)
+    } finally {
+      loading.value = false
+    }
+  })
 }
 </script>
 
@@ -71,7 +126,6 @@ const handleLogin = () => {
 
 .login-box {
   width: 400px;
-  height: 500px; /* 高大于宽 */
   padding: 40px;
   border-radius: 8px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
@@ -85,12 +139,10 @@ const handleLogin = () => {
 
 .login-btn {
   width: 100%;
-  background-color: #409EFF; /* 蓝色背景 */
   font-size: 16px;
   letter-spacing: 2px;
 }
 
-/* 调整输入框样式 */
 :deep(.el-input__wrapper) {
   padding: 0 15px;
 }

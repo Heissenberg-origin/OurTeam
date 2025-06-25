@@ -5,14 +5,28 @@
       <Sidebar />
     </el-aside>
     
-    <el-main class="layout-main">
-      <router-view />
-    </el-main>
+    <el-container>
+      <el-header class="layout-header">
+        <div class="header-right">
+          <UserAvatar :user-info="userInfo" />
+        </div>
+      </el-header>
+      
+      <el-main class="layout-main">
+        <router-view />
+      </el-main>
+    </el-container>
   </el-container>
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import Sidebar from '@/components/Sidebar.vue'
+import UserAvatar from '@/components/UserAvatar.vue'
+
+const userInfo = computed(() => {
+  return JSON.parse(localStorage.getItem('userInfo')) || {}
+})
 </script>
 
 <style scoped>
@@ -37,6 +51,21 @@ import Sidebar from '@/components/Sidebar.vue'
   color: white;
   font-size: 18px;
   background-color: #2b2f3a;
+}
+
+.layout-header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 60px;
+  padding: 0 20px;
+  background-color: white;
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
 }
 
 .layout-main {
