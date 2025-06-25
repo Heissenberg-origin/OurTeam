@@ -7,18 +7,21 @@
           <el-col :span="6">
             <el-form-item label="就诊卡号">
               <el-input 
-                v-model="searchForm.cardNo" 
+                v-model.number="searchForm.healthcard_id" 
                 placeholder="请输入就诊卡号" 
                 clearable 
+                type="number"
+                @keyup.enter="handleSearch"
               />
             </el-form-item>
           </el-col>
           <el-col :span="6">
             <el-form-item label="证件号">
               <el-input 
-                v-model="searchForm.idNo" 
+                v-model="searchForm.identification_id" 
                 placeholder="请输入证件号" 
                 clearable 
+                @keyup.enter="handleSearch"
               />
             </el-form-item>
           </el-col>
@@ -28,41 +31,20 @@
                 v-model="searchForm.name" 
                 placeholder="请输入患者姓名" 
                 clearable 
+                @keyup.enter="handleSearch"
               />
             </el-form-item>
           </el-col>
           <el-col :span="6">
-            <el-form-item label="建档时间">
-              <el-date-picker
-                v-model="searchForm.createTimeRange"
-                type="daterange"
-                range-separator="至"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期"
-                value-format="YYYY-MM-DD"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col :span="6">
-            <el-form-item label="状态">
-              <el-select 
-                v-model="searchForm.status" 
-                placeholder="请选择状态" 
-                clearable
-              >
-                <el-option
-                  v-for="item in statusOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="6" :offset="6">
             <el-form-item>
-              <el-button type="primary" @click="handleSearch">搜索</el-button>
-              <el-button @click="resetSearch">重置</el-button>
+              <el-button type="primary" @click="handleSearch" :loading="loading">
+                <el-icon><Search /></el-icon>
+                搜索
+              </el-button>
+              <el-button @click="resetSearch">
+                <el-icon><Refresh /></el-icon>
+                重置
+              </el-button>
             </el-form-item>
           </el-col>
         </el-row>
@@ -75,10 +57,6 @@
         <el-icon><Plus /></el-icon>
         新建登记
       </el-button>
-      <el-button @click="exportData">
-        <el-icon><Download /></el-icon>
-        导出数据
-      </el-button>
     </div>
 
     <!-- 患者列表 -->
@@ -89,37 +67,41 @@
         stripe 
         style="width: 100%"
         v-loading="loading"
+        height="calc(100vh - 350px)"
+        highlight-current-row
       >
-        <el-table-column prop="medicalRecordNo" label="病历号" width="120" />
-        <el-table-column prop="cardNo" label="就诊卡号" width="120" />
+        <el-table-column prop="healthcard_id" label="就诊卡号" width="120" sortable />
         <el-table-column prop="name" label="患者姓名" width="100" />
-        <el-table-column prop="gender" label="性别" width="80" />
-        <el-table-column prop="idType" label="证件类型" width="120" />
-        <el-table-column prop="idNo" label="证件号" width="180">
+        <el-table-column prop="gender" label="性别" width="80">
           <template #default="{ row }">
-            {{ row.idNo.replace(/(\d{6})\d+(\d{4})/, '$1******$2') }}
+            {{ row.gender === '1' ? '男' : row.gender === '2' ? '女' : '未知' }}
           </template>
         </el-table-column>
-        <el-table-column prop="status" label="状态" width="100">
+        <el-table-column prop="identification_type" label="证件类型" width="120">
           <template #default="{ row }">
-            <el-tag :type="getStatusTagType(row.status)">
-              {{ row.status }}
-            </el-tag>
+            {{ formatIdType(row.identification_type) }}
           </template>
         </el-table-column>
-        <el-table-column prop="createTime" label="建档时间" width="180" />
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column prop="identification_id" label="证件号" width="180">
+          <template #default="{ row }">
+            {{ row.identification_id ? formatIdNumber(row.identification_id) : '' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="birthdate" label="出生日期" width="120" sortable />
+        <el-table-column prop="phonenumber" label="联系电话" width="120" />
+        <el-table-column prop="type" label="患者类型" width="100" />
+        <el-table-column label="操作" width="220" fixed="right">
           <template #default="{ row }">
             <el-button 
               size="small" 
               type="primary"
-              @click="viewDetail(row.id)"
+              @click="viewDetail(row.healthcard_id)"
             >
               详情
             </el-button>
             <el-button 
               size="small"
-              @click="editPatient(row.id)"
+              @click="editPatient(row.healthcard_id)"
             >
               编辑
             </el-button>
@@ -127,6 +109,7 @@
               size="small" 
               type="danger"
               @click="handleDeactivate(row)"
+              :loading="deletingId === row.healthcard_id"
             >
               注销
             </el-button>
@@ -150,20 +133,19 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Plus, Download } from '@element-plus/icons-vue'
+import { Plus, Search, Refresh } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { queryPatients, deletePatient } from '@/api/patient'
 
 const router = useRouter()
 
 // 搜索表单
 const searchForm = reactive({
-  cardNo: '',
-  idNo: '',
-  name: '',
-  createTimeRange: [],
-  status: ''
+  healthcard_id: null,
+  identification_id: '',
+  name: ''
 })
 
 // 分页信息
@@ -175,130 +157,125 @@ const pagination = reactive({
 
 // 加载状态
 const loading = ref(false)
+const deletingId = ref(null)
+const hasSearched = ref(false) // 标记是否已经进行过搜索
 
-// 静态选项数据
-const statusOptions = [
-  { value: '正常', label: '正常' },
-  { value: '注销', label: '注销' },
-  { value: '冻结', label: '冻结' }
-]
+// 表格数据
+const tableData = ref([])
 
-// 模拟数据
-const allPatientData = ref([
-  {
-    id: 1,
-    medicalRecordNo: '6520050869',
-    cardNo: '20050869',
-    name: '张晓晓',
-    gender: '女',
-    idType: '居民身份证',
-    idNo: '530101199005086666',
-    status: '正常',
-    createTime: '2024-01-06 09:20:30'
-  },
-  {
-    id: 2,
-    medicalRecordNo: '6520050870',
-    cardNo: '20050870',
-    name: '李大明',
-    gender: '男',
-    idType: '护照',
-    idNo: 'E12345678',
-    status: '正常',
-    createTime: '2024-01-07 10:15:45'
-  },
-  {
-    id: 3,
-    medicalRecordNo: '6520050871',
-    cardNo: '20050871',
-    name: '王小红',
-    gender: '女',
-    idType: '居民身份证',
-    idNo: '530202199102077777',
-    status: '注销',
-    createTime: '2024-01-08 14:30:20'
-  },
-  // 更多模拟数据...
-  ...Array.from({ length: 27 }, (_, i) => ({
-    id: i + 4,
-    medicalRecordNo: `6520050${870 + i}`,
-    cardNo: `20050${870 + i}`,
-    name: ['张', '李', '王', '赵', '刘'][i % 5] + ['三', '四', '五', '六', '七'][i % 5],
-    gender: i % 2 === 0 ? '男' : '女',
-    idType: ['居民身份证', '护照', '军官证'][i % 3],
-    idNo: `530${i % 2 + 1}01${1980 + (i % 40)}${String(i % 12 + 1).padStart(2, '0')}${String(i % 28 + 1).padStart(2, '0')}${String(i).padStart(4, '0')}`,
-    status: ['正常', '注销', '冻结'][i % 3],
-    createTime: `2024-01-${String(i % 28 + 1).padStart(2, '0')} ${String(i % 24).padStart(2, '0')}:${String(i % 60).padStart(2, '0')}:${String(i % 60).padStart(2, '0')}`
-  }))
-])
+// 证件类型映射
+const idTypeMap = {
+  '1': '身份证',
+  '2': '护照',
+  '3': '军官证',
+  '4': '驾驶证',
+  '5': '其他'
+}
 
-// 计算当前页数据
-const tableData = computed(() => {
-  const start = (pagination.currentPage - 1) * pagination.pageSize
-  const end = start + pagination.pageSize
-  return filterData.value.slice(start, end)
-})
+// 格式化证件类型
+const formatIdType = (type) => {
+  return idTypeMap[type] || type || '未知'
+}
 
-// 过滤数据
-const filterData = computed(() => {
-  return allPatientData.value.filter(patient => {
-    const matchesCardNo = searchForm.cardNo ? patient.cardNo.includes(searchForm.cardNo) : true
-    const matchesIdNo = searchForm.idNo ? patient.idNo.includes(searchForm.idNo) : true
-    const matchesName = searchForm.name ? patient.name.includes(searchForm.name) : true
-    const matchesStatus = searchForm.status ? patient.status === searchForm.status : true
+// 格式化证件号显示
+const formatIdNumber = (id) => {
+  if (!id) return ''
+  // 身份证号脱敏处理
+  if (id.length === 18) {
+    return id.replace(/(\d{6})\d+(\d{4})/, '$1******$2')
+  }
+  // 其他证件号显示后4位
+  return `****${id.slice(-4)}`
+}
+
+// 获取患者数据
+const fetchPatients = async () => {
+  try {
+    loading.value = true
     
-    // 时间范围筛选
-    let matchesTime = true
-    if (searchForm.createTimeRange?.length === 2) {
-      const [start, end] = searchForm.createTimeRange
-      const createTime = patient.createTime.split(' ')[0]
-      matchesTime = createTime >= start && createTime <= end
+    // 构建查询参数
+    const params = {
+      ...(searchForm.healthcard_id && { healthcardId: searchForm.healthcard_id }),
+      ...(searchForm.identification_id && { identificationId: searchForm.identification_id }),
+      ...(searchForm.name && { name: searchForm.name }),
+      page: pagination.currentPage,
+      size: pagination.pageSize
     }
     
-    return matchesCardNo && matchesIdNo && matchesName && matchesStatus && matchesTime
-  })
-})
+    // 如果是首次加载且没有搜索条件，则不请求
+    if (!hasSearched.value && !searchForm.healthcard_id && !searchForm.identification_id && !searchForm.name) {
+      loading.value = false
+      return
+    }
+    
+    // 调用API
+    const response = await queryPatients(params)
+    
+    // 处理响应数据
+    if (Array.isArray(response?.data?.records)) {
+      tableData.value = response.data.records
+      pagination.total = response.data.total
+    } else if (Array.isArray(response?.data)) {
+      tableData.value = response.data
+      pagination.total = response.data.length
+    } else {
+      tableData.value = []
+      pagination.total = 0
+      if (hasSearched.value) {
+        ElMessage.warning('未查询到符合条件的患者')
+      }
+    }
+    
+    hasSearched.value = true
+    
+  } catch (error) {
+    console.error('获取患者列表失败:', error)
+    if (hasSearched.value) {
+      ElMessage.error(`获取患者列表失败: ${error.message}`)
+    }
+    tableData.value = []
+    pagination.total = 0
+  } finally {
+    loading.value = false
+  }
+}
 
-// 初始化分页总数
+// 初始化时不自动加载数据
 onMounted(() => {
-  pagination.total = filterData.value.length
+  ElMessage.info('请输入搜索条件查询患者信息')
 })
 
 // 搜索处理
 const handleSearch = () => {
+  if (!searchForm.healthcard_id && !searchForm.identification_id && !searchForm.name) {
+    ElMessage.warning('请输入至少一个搜索条件')
+    return
+  }
   pagination.currentPage = 1
-  pagination.total = filterData.value.length
+  fetchPatients()
 }
 
 // 重置搜索
 const resetSearch = () => {
-  searchForm.cardNo = ''
-  searchForm.idNo = ''
+  searchForm.healthcard_id = null
+  searchForm.identification_id = ''
   searchForm.name = ''
-  searchForm.createTimeRange = []
-  searchForm.status = ''
-  handleSearch()
+  hasSearched.value = false
+  tableData.value = []
+  pagination.total = 0
 }
 
 // 分页大小变化
 const handleSizeChange = (val) => {
   pagination.pageSize = val
   pagination.currentPage = 1
+  fetchPatients()
 }
 
 // 当前页变化
 const handleCurrentChange = (val) => {
   pagination.currentPage = val
-}
-
-// 状态标签类型
-const getStatusTagType = (status) => {
-  switch(status) {
-    case '正常': return 'success'
-    case '冻结': return 'warning'
-    case '注销': return 'danger'
-    default: return ''
-  }
+  fetchPatients()
 }
 
 // 跳转到登记页面
@@ -307,57 +284,84 @@ const goToRegister = () => {
 }
 
 // 查看详情
-const viewDetail = (patientId) => {
+const viewDetail = (healthcardId) => {
   router.push({
     name: 'PatientDetail',
-    params: { id: patientId }
+    params: { id: healthcardId }
   })
 }
 
 // 编辑患者
-const editPatient = (patientId) => {
+const editPatient = (healthcardId) => {
   router.push({
     name: 'PatientEdit',
-    params: { id: patientId }
+    params: { id: healthcardId }
   })
 }
 
-// 注销患者
-const handleDeactivate = (row) => {
-  ElMessageBox.confirm(
-    `确定要注销患者 ${row.name} 的就诊卡吗？此操作不可恢复！`,
-    '警告',
-    {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
+// 注销患者（优化版）
+const handleDeactivate = async (row) => {
+  try {
+    await ElMessageBox.confirm(
+      `确定要注销患者 ${row.name} (就诊卡号: ${row.healthcard_id}) 吗？此操作不可恢复！`,
+      '确认注销',
+      {
+        confirmButtonText: '确认注销',
+        cancelButtonText: '取消',
+        type: 'warning',
+        confirmButtonClass: 'el-button--danger',
+        beforeClose: async (action, instance, done) => {
+          if (action === 'confirm') {
+            instance.confirmButtonLoading = true
+            deletingId.value = row.healthcard_id
+            try {
+              const { data } = await deletePatient(row.healthcard_id)
+              if (data === true) {
+                ElMessage.success(`患者 ${row.name} 已成功注销`)
+                // 重新加载当前页数据
+                await fetchPatients()
+              } else {
+                ElMessage.error('注销失败，服务器返回异常')
+              }
+            } catch (error) {
+              console.error('注销请求失败:', error)
+              let errorMsg = '注销失败'
+              if (error.response) {
+                // 处理500错误
+                if (error.response.status === 500) {
+                  errorMsg += ': 服务器内部错误，请检查患者是否已被注销'
+                } else {
+                  errorMsg += `: ${error.response.data?.message || error.response.statusText}`
+                }
+              } else {
+                errorMsg += `: ${error.message}`
+              }
+              ElMessage.error(errorMsg)
+            } finally {
+              instance.confirmButtonLoading = false
+              deletingId.value = null
+              done()
+            }
+          } else {
+            done()
+          }
+        }
+      }
+    )
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('注销操作异常:', error)
     }
-  ).then(() => {
-    // 实际项目中这里调用API
-    const index = allPatientData.value.findIndex(p => p.id === row.id)
-    if (index !== -1) {
-      allPatientData.value[index].status = '注销'
-      ElMessage.success('患者已注销')
-    }
-  }).catch(() => {
-    ElMessage.info('已取消操作')
-  })
-}
-
-// 导出数据
-const exportData = () => {
-  loading.value = true
-  // 模拟导出延迟
-  setTimeout(() => {
-    ElMessage.success('导出成功')
-    loading.value = false
-  }, 1500)
+  }
 }
 </script>
 
 <style scoped>
 .patient-list-container {
   padding: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .search-card {
@@ -373,5 +377,15 @@ const exportData = () => {
 .pagination {
   margin-top: 20px;
   justify-content: flex-end;
+}
+
+.el-table {
+  flex: 1;
+}
+
+:deep(.el-card__body) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 </style>
